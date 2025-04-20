@@ -1,0 +1,36 @@
+.admin-dashboard-container {
+	max-width: 1200px;
+	margin-top: 2rem;
+}
+
+.admin-request-card {
+	border-radius: 10px;
+	border: 1px solid #e0e0e0;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+	transition: transform 0.2s ease-in-out;
+	padding: 1.2rem;
+	margin-bottom: 1rem;
+}
+
+.admin-request-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.status-filter-container {
+	margin-bottom: 1.5rem;
+}
+
+.filter-btn {
+	margin-right: 0.5rem;
+}
+
+.filter-btn.active {
+	background-color: #27351e;
+	border-color: #27351e;
+}
+
+.admin-heading {
+	color: #27351e;
+	font-weight: 700;
+}

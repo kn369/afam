@@ -25,8 +25,9 @@
 	background-color: #27351e;
 	border-color: #27351e;
 	font-weight: 500;
-	padding: 0.5rem 1rem;
+	padding: 0.4rem 0.8rem; /* Decreased padding */
 	border-radius: 0.5rem;
+	font-size: 0.85rem; /* Decreased font size */
 }
 
 .add-request-btn:hover,
@@ -92,4 +93,11 @@
 .modal-title {
 	color: #27351e;
 	font-weight: 600;
+}
+
+/* Style for the logout button */
+.logout-btn {
+	padding: 0.4rem 0.8rem; /* Decreased padding */
+	font-size: 0.85rem; /* Decreased font size */
+	font-weight: 500;
 }

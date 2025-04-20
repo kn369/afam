@@ -1,21 +1,41 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 
-const RequestModal = ({
+const EditRequestModal = ({
 	showModal,
 	setShowModal,
-	newRequest,
-	setNewRequest,
-	handleSubmitRequest,
+	currentRequest,
+	onSaveChanges,
 }) => {
+	const [editedRequest, setEditedRequest] = useState({
+		title: "",
+		description: "",
+		type: "",
+	});
 	const [selectedFiles, setSelectedFiles] = useState([]);
+
+	// Update form fields when currentRequest changes
+	useEffect(() => {
+		if (currentRequest) {
+			setEditedRequest({
+				title: currentRequest.title || "",
+				description: currentRequest.description || "",
+				type: currentRequest.type || "General",
+			});
+		}
+	}, [currentRequest]);
 
 	const handleFileChange = (e) => {
 		setSelectedFiles(Array.from(e.target.files));
-		setNewRequest({
-			...newRequest,
+		setEditedRequest({
+			...editedRequest,
 			docs: Array.from(e.target.files),
 		});
+	};
+
+	const handleSubmit = (e) => {
+		e.preventDefault();
+		onSaveChanges(editedRequest);
 	};
 
 	const requestTypes = [
@@ -28,16 +48,16 @@ const RequestModal = ({
 	return (
 		<Modal show={showModal} onHide={() => setShowModal(false)}>
 			<Modal.Header closeButton>
-				<Modal.Title>New Request</Modal.Title>
+				<Modal.Title>Edit Request</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
-				<Form onSubmit={handleSubmitRequest}>
+				<Form onSubmit={handleSubmit}>
 					<Form.Group className="mb-3">
 						<Form.Label>Request Type</Form.Label>
 						<Form.Select
-							value={newRequest.type || "General"}
+							value={editedRequest.type || "General"}
 							onChange={(e) =>
-								setNewRequest({ ...newRequest, type: e.target.value })
+								setEditedRequest({ ...editedRequest, type: e.target.value })
 							}
 							required
 						>
@@ -54,9 +74,9 @@ const RequestModal = ({
 						<Form.Control
 							type="text"
 							placeholder="Enter title"
-							value={newRequest.title}
+							value={editedRequest.title}
 							onChange={(e) =>
-								setNewRequest({ ...newRequest, title: e.target.value })
+								setEditedRequest({ ...editedRequest, title: e.target.value })
 							}
 							required
 						/>
@@ -68,23 +88,33 @@ const RequestModal = ({
 							as="textarea"
 							rows={3}
 							placeholder="Describe your request"
-							value={newRequest.description}
+							value={editedRequest.description}
 							onChange={(e) =>
-								setNewRequest({ ...newRequest, description: e.target.value })
+								setEditedRequest({
+									...editedRequest,
+									description: e.target.value,
+								})
 							}
 							required
 						/>
 					</Form.Group>
 
 					<Form.Group className="mb-3">
-						<Form.Label>Supporting Documents</Form.Label>
+						<Form.Label>Update Supporting Documents</Form.Label>
 						<Form.Control type="file" multiple onChange={handleFileChange} />
 						<Form.Text className="text-muted">
-							Upload any relevant documents (optional)
+							Upload new documents (optional)
 						</Form.Text>
 						{selectedFiles.length > 0 && (
 							<div className="mt-2">
-								<small>{selectedFiles.length} file(s) selected</small>
+								<small>{selectedFiles.length} new file(s) selected</small>
+							</div>
+						)}
+						{currentRequest?.docs?.length > 0 && (
+							<div className="mt-2">
+								<small>
+									Current documents: {currentRequest.docs.length} file(s)
+								</small>
 							</div>
 						)}
 					</Form.Group>
@@ -98,7 +128,7 @@ const RequestModal = ({
 							Cancel
 						</Button>
 						<Button variant="primary" type="submit">
-							Submit Request
+							Save Changes
 						</Button>
 					</div>
 				</Form>
@@ -107,4 +137,4 @@ const RequestModal = ({
 	);
 };
 
-export default RequestModal;
+export default EditRequestModal;

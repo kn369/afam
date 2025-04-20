@@ -1,0 +1,30 @@
+const jwt = require("jsonwebtoken");
+
+const authMiddleware = (req, res, next) => {
+	const authHeader = req.header("authorization");
+
+	if (!authHeader) {
+		return res.status(401).json({ message: "No token, authorization denied" });
+	}
+
+	// Check if the authorization header follows the Bearer format
+	// Format: "Bearer [token]"
+	try {
+		const token = authHeader.startsWith("Bearer ")
+			? authHeader.split(" ")[1] // Extract token after "Bearer "
+			: authHeader; // Or use as-is if no Bearer prefix
+
+		if (!token) {
+			return res.status(401).json({ message: "Invalid token format" });
+		}
+
+		const verified = jwt.verify(token, process.env.JWT_SECRET);
+		req.user = verified;
+		next();
+	} catch (err) {
+		console.error("Token verification error:", err.message);
+		res.status(401).json({ message: "Token is not valid" });
+	}
+};
+
+module.exports = authMiddleware;
