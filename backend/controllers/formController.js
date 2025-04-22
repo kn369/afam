@@ -3,22 +3,35 @@ const User = require("../models/User");
 
 exports.createForm = async (req, res) => {
 	try {
-		const { type, username, description, status, id } = req.body;
-		const docs = req.docs ? req.docs : [];
+		const { type, username, description, status, id, title } = req.body;
+
+		// Process uploaded files if any
+		let docs = [];
+		if (req.files && req.files.length > 0) {
+			docs = req.files.map((file) => ({
+				filename: file.filename,
+				path: file.path,
+				originalname: file.originalname,
+			}));
+		}
+
 		const newForm = new Form({
 			id,
 			type,
 			username,
+			title: title || type,
 			description,
-			status,
+			status: status || "Pending",
 			docs,
 		});
+
 		await newForm.save();
 		res
 			.status(201)
 			.json({ message: "Form created successfully", form: newForm });
 	} catch (error) {
-		res.status(500).json({ error: error.message });
+		console.error("Error creating form:", error);
+		res.status(500).json({ error: error.message || "Failed to create form" });
 	}
 };
 

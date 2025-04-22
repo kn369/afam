@@ -9,6 +9,7 @@ import EditRequestModal from "../components/EditRequestModal";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { formService } from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import Background from "../components/Background";
 
 const User = () => {
 	const { user, logout } = useAuth();
@@ -206,26 +207,25 @@ const User = () => {
 
 	return (
 		<Container className="dashboard-container py-4">
+			<Background />
 			<Row className="welcome-section mb-4">
 				<Col>
 					<h1 className="welcome-heading">
 						Welcome, {user ? user.username : "User"}!
 					</h1>
-					<p className="welcome-subtext">
-						Manage your form requests and submissions
-					</p>
+					<p>Manage your form requests and submissions</p>
 				</Col>
 				<Col xs="auto" className="d-flex">
 					<Button
 						variant="primary"
-						className="add-request-btn me-2"
+						style={{ height: "4vh" }}
 						onClick={() => setShowModal(true)}
 					>
 						+ New Request
 					</Button>
 					<Button
-						variant="outline-danger"
-						className="logout-btn"
+						variant="danger"
+						style={{ height: "4vh", marginLeft: "10px" }}
 						onClick={handleLogout}
 					>
 						Logout

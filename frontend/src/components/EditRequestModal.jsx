@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, Alert } from "react-bootstrap";
 
 const EditRequestModal = ({
 	showModal,
@@ -13,6 +13,7 @@ const EditRequestModal = ({
 		type: "",
 	});
 	const [selectedFiles, setSelectedFiles] = useState([]);
+	const [fileError, setFileError] = useState("");
 
 	// Update form fields when currentRequest changes
 	useEffect(() => {
@@ -21,20 +22,45 @@ const EditRequestModal = ({
 				title: currentRequest.title || "",
 				description: currentRequest.description || "",
 				type: currentRequest.type || "General",
+				docs: currentRequest.docs || [],
 			});
+			// Reset file selections when the modal opens with a new request
+			setSelectedFiles([]);
+			setFileError("");
 		}
 	}, [currentRequest]);
 
 	const handleFileChange = (e) => {
-		setSelectedFiles(Array.from(e.target.files));
+		const files = Array.from(e.target.files);
+		setFileError("");
+
+		// Validate that all files are PDFs
+		const invalidFiles = files.filter(
+			(file) => file.type !== "application/pdf"
+		);
+
+		if (invalidFiles.length > 0) {
+			setFileError(
+				"Only PDF files are allowed. Please select valid documents."
+			);
+			// Reset the file input
+			e.target.value = null;
+			return;
+		}
+
+		setSelectedFiles(files);
 		setEditedRequest({
 			...editedRequest,
-			docs: Array.from(e.target.files),
+			docs: files,
 		});
 	};
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
+		// Don't proceed if there are file errors
+		if (fileError) {
+			return;
+		}
 		onSaveChanges(editedRequest);
 	};
 
@@ -101,13 +127,25 @@ const EditRequestModal = ({
 
 					<Form.Group className="mb-3">
 						<Form.Label>Update Supporting Documents</Form.Label>
-						<Form.Control type="file" multiple onChange={handleFileChange} />
+						<Form.Control
+							type="file"
+							multiple
+							onChange={handleFileChange}
+							accept=".pdf"
+						/>
 						<Form.Text className="text-muted">
-							Upload new documents (optional)
+							Upload new PDF documents only (optional)
 						</Form.Text>
-						{selectedFiles.length > 0 && (
+						{fileError && (
+							<Alert variant="danger" className="mt-2 p-2">
+								{fileError}
+							</Alert>
+						)}
+						{selectedFiles.length > 0 && !fileError && (
 							<div className="mt-2">
-								<small>{selectedFiles.length} new file(s) selected</small>
+								<small className="text-success">
+									{selectedFiles.length} new PDF file(s) selected
+								</small>
 							</div>
 						)}
 						{currentRequest?.docs?.length > 0 && (
@@ -127,7 +165,7 @@ const EditRequestModal = ({
 						>
 							Cancel
 						</Button>
-						<Button variant="primary" type="submit">
+						<Button variant="primary" type="submit" disabled={!!fileError}>
 							Save Changes
 						</Button>
 					</div>

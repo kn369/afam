@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, Alert } from "react-bootstrap";
 
 const RequestModal = ({
 	showModal,
@@ -9,12 +9,30 @@ const RequestModal = ({
 	handleSubmitRequest,
 }) => {
 	const [selectedFiles, setSelectedFiles] = useState([]);
+	const [fileError, setFileError] = useState("");
 
 	const handleFileChange = (e) => {
-		setSelectedFiles(Array.from(e.target.files));
+		const files = Array.from(e.target.files);
+		setFileError("");
+
+		// Validate that all files are PDFs
+		const invalidFiles = files.filter(
+			(file) => file.type !== "application/pdf"
+		);
+
+		if (invalidFiles.length > 0) {
+			setFileError(
+				"Only PDF files are allowed. Please select valid documents."
+			);
+			// Reset the file input
+			e.target.value = null;
+			return;
+		}
+
+		setSelectedFiles(files);
 		setNewRequest({
 			...newRequest,
-			docs: Array.from(e.target.files),
+			docs: files,
 		});
 	};
 
@@ -78,13 +96,25 @@ const RequestModal = ({
 
 					<Form.Group className="mb-3">
 						<Form.Label>Supporting Documents</Form.Label>
-						<Form.Control type="file" multiple onChange={handleFileChange} />
+						<Form.Control
+							type="file"
+							multiple
+							onChange={handleFileChange}
+							accept=".pdf"
+						/>
 						<Form.Text className="text-muted">
-							Upload any relevant documents (optional)
+							Upload PDF documents only (optional)
 						</Form.Text>
-						{selectedFiles.length > 0 && (
+						{fileError && (
+							<Alert variant="danger" className="mt-2 p-2">
+								{fileError}
+							</Alert>
+						)}
+						{selectedFiles.length > 0 && !fileError && (
 							<div className="mt-2">
-								<small>{selectedFiles.length} file(s) selected</small>
+								<small className="text-success">
+									{selectedFiles.length} PDF file(s) selected
+								</small>
 							</div>
 						)}
 					</Form.Group>

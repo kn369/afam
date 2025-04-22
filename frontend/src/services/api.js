@@ -155,6 +155,17 @@ export const formService = {
 			throw error.response?.data || { message: "Failed to delete form" };
 		}
 	},
+
+	getFileUrl: (filePath) => {
+		// Check if filePath is provided
+		if (!filePath) return null;
+
+		// Extract the filename from the path
+		const filename = filePath.split("/").pop();
+
+		// Construct the full URL to the file
+		return `${API_URL.replace("/api", "")}/uploads/${filename}`;
+	},
 };
 
 export default api;

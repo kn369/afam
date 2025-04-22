@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const authRouter = require("./routes/authRoutes");
 const formRouter = require("./routes/formRoutes");
-
+const path = require("path");
 const cors = require("cors");
 const connectDB = require("./config/db");
 
@@ -12,6 +12,9 @@ connectDB();
 
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from the uploads directory
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api/auth", authRouter);
 app.use("/api/forms", formRouter);

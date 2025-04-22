@@ -1,0 +1,47 @@
+.background-container {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	z-index: -1; /* Places it behind the content */
+	pointer-events: none; /* Allows clicking through to content */
+	overflow: hidden;
+}
+
+/* Make the Spline canvas fill the container */
+.background-container canvas {
+	width: 100% !important;
+	height: 100% !important;
+	object-fit: cover;
+}
+
+/* Handle responsive behavior for background */
+@media (max-width: 768px) {
+	.background-container canvas {
+		transform: scale(1.2);
+		transform-origin: center center;
+	}
+}
+
+/* Adjust scaling for smaller screens */
+@media (max-width: 576px) {
+	.background-container canvas {
+		transform: scale(1.5);
+	}
+}
+
+/* Loading state for background */
+.background-loading {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: rgba(0, 0, 0, 0.5);
+	color: white;
+	font-size: 1.2rem;
+}

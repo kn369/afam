@@ -15,6 +15,7 @@ import "./admin.css";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { formService } from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import Background from "../components/Background";
 
 const Admin = () => {
 	const { user, logout } = useAuth();
@@ -25,7 +26,9 @@ const Admin = () => {
 	const [error, setError] = useState("");
 	const [currentRequest, setCurrentRequest] = useState(null);
 	const [showStatusModal, setShowStatusModal] = useState(false);
+	const [showDetailsModal, setShowDetailsModal] = useState(false);
 	const [activeFilter, setActiveFilter] = useState("all");
+	const [selectedFile, setSelectedFile] = useState(null);
 
 	// Fetch all forms/requests when component mounts
 	useEffect(() => {
@@ -128,16 +131,25 @@ const Admin = () => {
 		fetchAllForms();
 	};
 
+	const handleViewDetails = (request) => {
+		setCurrentRequest(request);
+		setShowDetailsModal(true);
+	};
+
+	const handleFileSelect = (file) => {
+		setSelectedFile(file);
+	};
+
 	// Custom admin view of the request card
 	const AdminRequestCard = ({ request }) => {
 		return (
 			<div className="admin-request-card">
 				<div className="d-flex justify-content-between flex-wrap">
-					<div className="mb-3">
+					<div className="mb-3 request-info-container">
 						<h5>{request.title || request.type || "Untitled Request"}</h5>
 						<p className="text-muted mb-1">Submitted by: {request.username}</p>
-						<p className="mb-2">{request.description}</p>
-						<div>
+						<p className="mb-2 request-description">{request.description}</p>
+						<div className="mb-2">
 							<Badge bg="secondary" className="me-2">
 								{request.type || "General"}
 							</Badge>
@@ -158,6 +170,16 @@ const Admin = () => {
 								</Badge>
 							)}
 						</div>
+						{request.docs && request.docs.length > 0 && (
+							<Button
+								variant="outline-info"
+								size="sm"
+								className="mt-1"
+								onClick={() => handleViewDetails(request)}
+							>
+								<i className="bi bi-eye"></i> View Details & Documents
+							</Button>
+						)}
 					</div>
 					<div className="d-flex flex-column">
 						<Button
@@ -185,14 +207,23 @@ const Admin = () => {
 
 	return (
 		<Container className="admin-dashboard-container py-4">
+			<Background
+				style={{
+					height: "100vh",
+					width: "100vw",
+					position: "absolute",
+					top: "0",
+					left: "0",
+				}}
+			/>
 			<Row className="welcome-section mb-4">
 				<Col>
 					<h1 className="admin-heading">Admin Dashboard</h1>
-					<p className="welcome-subtext">Review and manage all form requests</p>
+					<p >Review and manage all form requests</p>
 				</Col>
 				<Col xs="auto">
 					<Button
-						variant="outline-danger"
+						variant="danger"
 						className="logout-btn"
 						onClick={handleLogout}
 					>
@@ -251,7 +282,7 @@ const Admin = () => {
 
 			<Row className="request-list">
 				<Col>
-					<h2 className="section-heading mb-3">All Requests</h2>
+					{/* <h2 className="section-heading mb-3">Requests</h2> */}
 					{loading ? (
 						<LoadingSpinner message="Loading requests..." />
 					) : error ? (
@@ -318,6 +349,128 @@ const Admin = () => {
 						disabled={currentRequest?.status === "Rejected"}
 					>
 						Reject
+					</Button>
+				</Modal.Footer>
+			</Modal>
+
+			{/* Details and Documents Modal */}
+			<Modal
+				show={showDetailsModal}
+				onHide={() => {
+					setShowDetailsModal(false);
+					setSelectedFile(null);
+				}}
+				size="lg"
+			>
+				<Modal.Header closeButton>
+					<Modal.Title>Request Details & Documents</Modal.Title>
+				</Modal.Header>
+				<Modal.Body>
+					{currentRequest && (
+						<>
+							<div className="request-details mb-4">
+								<h5 className="mb-3">
+									{currentRequest.title || currentRequest.type}
+								</h5>
+								<div className="detail-row">
+									<strong>Type:</strong> {currentRequest.type || "General"}
+								</div>
+								<div className="detail-row">
+									<strong>Submitted by:</strong> {currentRequest.username}
+								</div>
+								<div className="detail-row">
+									<strong>Status:</strong>{" "}
+									<Badge
+										bg={
+											currentRequest.status?.toLowerCase().includes("approve")
+												? "success"
+												: currentRequest.status
+														?.toLowerCase()
+														.includes("reject")
+												? "danger"
+												: "warning"
+										}
+									>
+										{currentRequest.status || "Pending"}
+									</Badge>
+								</div>
+								<div className="detail-row mt-3">
+									<strong>Description:</strong>
+									<p className="description-text mt-1">
+										{currentRequest.description}
+									</p>
+								</div>
+							</div>
+
+							{currentRequest.docs && currentRequest.docs.length > 0 && (
+								<div className="documents-section">
+									<h5 className="mb-3">Documents</h5>
+									<Row>
+										<Col md={selectedFile ? 4 : 12}>
+											<div className="document-list">
+												{currentRequest.docs.map((doc, index) => (
+													<div
+														key={index}
+														className={`document-item p-2 mb-2 ${
+															selectedFile === doc ? "selected" : ""
+														}`}
+														onClick={() => handleFileSelect(doc)}
+													>
+														<i className="bi bi-file-earmark-pdf me-2"></i>
+														{doc.originalname ||
+															doc.filename ||
+															`Document ${index + 1}`}
+													</div>
+												))}
+											</div>
+										</Col>
+										{selectedFile && (
+											<Col md={8}>
+												<div className="pdf-preview">
+													<div className="d-flex justify-content-between mb-2">
+														<h6>
+															{selectedFile.originalname ||
+																selectedFile.filename}
+														</h6>
+														<a
+															href={formService.getFileUrl(selectedFile.path)}
+															target="_blank"
+															rel="noopener noreferrer"
+															className="btn btn-sm btn-primary"
+														>
+															<i className="bi bi-download me-1"></i>
+															Open in New Tab
+														</a>
+													</div>
+													<div className="pdf-embed-container">
+														<iframe
+															src={`${formService.getFileUrl(
+																selectedFile.path
+															)}#toolbar=0`}
+															width="100%"
+															height="400px"
+															title="PDF Document"
+															className="pdf-iframe"
+														></iframe>
+													</div>
+												</div>
+											</Col>
+										)}
+									</Row>
+								</div>
+							)}
+						</>
+					)}
+				</Modal.Body>
+				<Modal.Footer>
+					<Button
+						variant="secondary"
+						onClick={() => {
+							setShowDetailsModal(false);
+							setSelectedFile(null);
+						}}
+					>
+						Close
 					</Button>
 				</Modal.Footer>
 			</Modal>
