@@ -24,7 +24,7 @@ const User = () => {
 	const [newRequest, setNewRequest] = useState({
 		title: "",
 		description: "",
-		type: "General",
+		type: "Medical Leave", // Changed from "General" to "Medical Leave"
 		docs: [],
 	});
 
@@ -71,7 +71,7 @@ const User = () => {
 			const formData = new FormData();
 
 			// Add text fields
-			formData.append("type", newRequest.type || "General");
+			formData.append("type", newRequest.type); // Removed the default "General" fallback
 			formData.append("title", newRequest.title);
 			formData.append("description", newRequest.description);
 			formData.append("status", "Pending");
@@ -92,7 +92,7 @@ const User = () => {
 			setNewRequest({
 				title: "",
 				description: "",
-				type: "General",
+				type: "Medical Leave", // Changed default reset value to match initial state
 				docs: [],
 			});
 			setShowModal(false);
@@ -143,7 +143,7 @@ const User = () => {
 			const formData = new FormData();
 
 			// Add text fields
-			formData.append("type", editedRequest.type || currentRequest.type);
+			formData.append("type", editedRequest.type); // Removed fallback to use selected type directly
 			formData.append("title", editedRequest.title);
 			formData.append("description", editedRequest.description);
 			formData.append("status", currentRequest.status || "Pending");

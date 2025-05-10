@@ -53,7 +53,7 @@ const RequestModal = ({
 					<Form.Group className="mb-3">
 						<Form.Label>Request Type</Form.Label>
 						<Form.Select
-							value={newRequest.type || "General"}
+							value={newRequest.type}
 							onChange={(e) =>
 								setNewRequest({ ...newRequest, type: e.target.value })
 							}

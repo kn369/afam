@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
 		return await authService.register(userData);
 	};
 
-	// Fixed isAdmin function to properly check against 'admin' role value from the backend
+
 	const isAdmin = () => {
 		// More reliable role checking logic
 		if (!user) return false;
